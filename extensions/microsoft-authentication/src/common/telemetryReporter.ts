@@ -28,6 +28,10 @@ export class MicrosoftAuthenticationTelemetryReporter implements IExperimentatio
 		this.sharedProperties[name] = value;
 	}
 
+	private hasPlatformBrokerError(error: ClientAuthError): error is ClientAuthError & { platformBrokerError: { errorCode: string; statusCode: number; tag: string } } {
+		return 'platformBrokerError' in error && typeof error.platformBrokerError === 'object' && error.platformBrokerError !== null;
+	}
+
 	postEvent(eventName: string, props: Map<string, string>): void {
 		const eventProperties: TelemetryEventProperties = { ...this.sharedProperties, ...Object.fromEntries(props) };
 		this._telemetryReporter.sendTelemetryEvent(
@@ -116,7 +120,7 @@ export class MicrosoftAuthenticationTelemetryReporter implements IExperimentatio
 		let brokerTag: string | undefined;
 
 		// Extract platform broker error information if available
-		if (error.platformBrokerError) {
+		if (this.hasPlatformBrokerError(error)) {
 			brokerErrorCode = error.platformBrokerError.errorCode;
 			brokerStatusCode = `${error.platformBrokerError.statusCode}`;
 			brokerTag = error.platformBrokerError.tag;

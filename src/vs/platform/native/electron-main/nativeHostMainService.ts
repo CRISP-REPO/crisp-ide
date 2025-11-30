@@ -375,7 +375,12 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 		}
 
 		for (const window of windows) {
-			window.win?.setAccentColor(window.win.isFocused() ? activeWindowAccentColor : inactiveWindowAccentColor);
+			if (window.win) {
+				const accentColor = window.win.isFocused() ? activeWindowAccentColor : inactiveWindowAccentColor;
+				if (accentColor !== null) {
+					window.win.setAccentColor(accentColor);
+				}
+			}
 		}
 	}
 
